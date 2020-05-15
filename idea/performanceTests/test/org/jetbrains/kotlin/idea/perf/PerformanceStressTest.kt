@@ -53,6 +53,7 @@ class PerformanceStressTest : AbstractPerformanceProjectsTest() {
             myProject = openProject {
                 name("kt-35135")
                 buildGradle("idea/testData/perfTest/simpleTemplate/")
+                initDefaultProfile()
 
                 kotlinFile("OverloadX") {
                     pkg("pkg")
