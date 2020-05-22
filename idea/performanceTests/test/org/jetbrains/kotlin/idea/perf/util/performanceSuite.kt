@@ -118,6 +118,7 @@ class PerformanceSuite {
         var after: (() -> Unit)? = null
     ) {
         fun run(): List<T?> {
+            val t = test ?: error("test procedure isn't set")
             val value = mutableListOf<T?>()
             performanceTest<Unit, T> {
                 name(name)
@@ -128,7 +129,7 @@ class PerformanceSuite {
                     before()
                 }
                 test {
-                    value.add(test?.invoke() ?: error("test procedure isn't set"))
+                    value.add(t.invoke())
                 }
                 tearDown {
                     after?.invoke()
