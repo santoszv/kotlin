@@ -48,14 +48,19 @@ class TestGenerator(
     }
 
     /**
-     * @return true if a new file has been generated
+     * @return true if a new file is generated
      */
     @Throws(IOException::class)
-    fun generateAndSave(): Boolean {
+    fun generateAndSave(dryRun: Boolean): Boolean {
         val generatedCode = generate()
 
         val testSourceFile = File(testSourceFilePath)
-        return GeneratorsFileUtil.writeFileIfContentChanged(testSourceFile, generatedCode, false)
+        val changed =
+            GeneratorsFileUtil.isFileContentChangedIgnoringLineSeparators(testSourceFile, generatedCode)
+        if (!dryRun) {
+            GeneratorsFileUtil.writeFileIfContentChanged(testSourceFile, generatedCode, false)
+        }
+        return changed
     }
 
     private fun generate(): String {

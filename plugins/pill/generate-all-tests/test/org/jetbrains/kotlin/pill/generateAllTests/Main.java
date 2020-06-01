@@ -18,7 +18,8 @@ public class Main {
         GenerateJava8TestsKt.main(args);
         GenerateRuntimeDescriptorTestsKt.main(args);
 
-        List<String> affectedFiles = InconsistencyChecker.Companion.inconsistencyChecker(args).getAffectedFiles();
+        boolean dryRun = InconsistencyChecker.Companion.hasDryRunArg(args);
+        List<String> affectedFiles = InconsistencyChecker.Companion.inconsistencyChecker(dryRun).getAffectedFiles();
         int size = affectedFiles.size();
         if (size > 0) {
             throw new IllegalStateException("There " + (size == 1 ? "is a test" : "are " + size + " tests") + " to be regenerated:\n"

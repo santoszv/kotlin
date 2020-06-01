@@ -6,6 +6,7 @@
 package org.jetbrains.kotlin.generators.tests.generator
 
 import junit.framework.TestCase
+import org.jetbrains.kotlin.generators.tests.generator.InconsistencyChecker.Companion.hasDryRunArg
 import org.jetbrains.kotlin.generators.tests.generator.InconsistencyChecker.Companion.inconsistencyChecker
 import org.jetbrains.kotlin.test.TargetBackend
 import java.io.File
@@ -18,7 +19,7 @@ class TestGroup(
     val testRunnerMethodName: String,
     val additionalRunnerArguments: List<String> = emptyList(),
     val annotations: List<AnnotationModel> = emptyList(),
-    private val inconsistencyConsumer: (String) -> Unit = {}
+    private val dryRun: Boolean = false
 ) {
     inline fun <reified T : TestCase> testClass(
         suiteTestClassName: String = getDefaultSuiteTestClassName(T::class.java.simpleName),
@@ -43,8 +44,8 @@ class TestGroup(
             TestClass(annotations).apply(init).testModels,
             useJunit4
         )
-        if (testGenerator.generateAndSave()) {
-            inconsistencyConsumer.invoke(testGenerator.testSourceFilePath)
+        if (testGenerator.generateAndSave(dryRun)) {
+            inconsistencyChecker(dryRun).add(testGenerator.testSourceFilePath)
         }
     }
 
@@ -94,18 +95,17 @@ fun testGroupSuite(
     args: Array<String>,
     init: TestGroupSuite.() -> Unit
 ) {
-    val checker = inconsistencyChecker(args)
-    testGroupSuite({ checker.add(it) }, init)
+    testGroupSuite(hasDryRunArg(args), init)
 }
 
 fun testGroupSuite(
-    inconsistencyConsumer: (String) -> Unit = {},
+    dryRun: Boolean = false,
     init: TestGroupSuite.() -> Unit
 ) {
-    TestGroupSuite(inconsistencyConsumer).init()
+    TestGroupSuite(dryRun).init()
 }
 
-class TestGroupSuite(private val inconsistencyConsumer: (String) -> Unit = {}) {
+class TestGroupSuite(private val dryRun: Boolean) {
     fun testGroup(
         testsRoot: String,
         testDataRoot: String,
@@ -118,7 +118,7 @@ class TestGroupSuite(private val inconsistencyConsumer: (String) -> Unit = {}) {
             testDataRoot,
             testRunnerMethodName,
             additionalRunnerArguments,
-            inconsistencyConsumer = inconsistencyConsumer
+            dryRun = dryRun
         ).init()
     }
 }
@@ -129,9 +129,9 @@ interface InconsistencyChecker {
     val affectedFiles: List<String>
 
     companion object {
-        fun inconsistencyChecker(args: Array<String>) = inconsistencyChecker(args.any { it == "check" })
+        fun hasDryRunArg(args: Array<String>) = args.any { it == "dryRun" }
 
-        fun inconsistencyChecker(check: Boolean) = if (check) DefaultInconsistencyChecker else EmptyInconsistencyChecker
+        fun inconsistencyChecker(dryRun: Boolean) = if (dryRun) DefaultInconsistencyChecker else EmptyInconsistencyChecker
     }
 }
 
