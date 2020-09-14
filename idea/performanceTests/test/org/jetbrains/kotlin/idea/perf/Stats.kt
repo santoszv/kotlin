@@ -276,8 +276,7 @@ class Stats(
                 triggerGC(attempt)
 
                 val setUpMillis = measureTimeMillis {
-                    // TODO[VD] !!!
-                    // phaseData.setUp(testData)
+                    phaseData.setUp(testData)
                 }
                 val attemptName = "${phaseData.testName} #$attempt"
                 logMessage { "$attemptName setup took $setUpMillis ms" }
@@ -287,8 +286,7 @@ class Stats(
                 try {
                     phaseProfiler.start()
                     valueMap[TEST_KEY] = measureNanoTime {
-                        // TODO[VD] !!!
-                        // phaseData.test(testData)
+                        phaseData.test(testData)
                     }
 
                     PerformanceCounter.report { name, counter, nanos ->
@@ -304,8 +302,7 @@ class Stats(
                     phaseProfiler.stop()
                     try {
                         val tearDownMillis = measureTimeMillis {
-                            // TODO[VD] !!!
-                            // phaseData.tearDown(testData)
+                            phaseData.tearDown(testData)
                         }
                         logMessage { "$attemptName tearDown took $tearDownMillis ms" }
                     } catch (t: Throwable) {
