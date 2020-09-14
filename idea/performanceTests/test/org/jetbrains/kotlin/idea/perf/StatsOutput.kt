@@ -66,7 +66,12 @@ private fun Metric.toJson(prefix: String): String =
             val list = listOf(Metric(if (nam == childrenName) "_value" else nam, value)) + children
             append("\"").append(cnm).append("\":").append(list.toJson(s))
         } else {
-            append("\"").append(nm).append("\":").append("\"${value ?: error ?: ""}\"")
+            append("\"").append(nm).append("\":")
+            if (value is Number) {
+                append(value)
+            } else {
+                append("\"${value ?: error ?: ""}\"")
+            }
             append(",\"").append(nm).append("_legacy\":").append("\"${s.replace("\"", "\\\"")}\"")
         }
     }
