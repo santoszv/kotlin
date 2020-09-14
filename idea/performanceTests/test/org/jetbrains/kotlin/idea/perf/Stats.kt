@@ -44,7 +44,12 @@ class Stats(
             logMessage { "buildProperties: $buildProperties" }
 
             metrics.add(Metric("build.timestamp", SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ").format(Date())))
-            for ((name, key) in mapOf("agent.name" to "agent.name", "build.id" to "teamcity.build.id")) {
+            for ((name, key) in
+            mapOf(
+                "build.id" to "teamcity.build.id",
+                "build.branch" to "teamcity.build.branch",
+                "agent.name" to "agent.name",
+            )) {
                 metrics.add(Metric(name, buildProperties.getProperty(key)))
             }
         }
@@ -359,7 +364,7 @@ class Stats(
         if (perfTestRawDataMs.isNotEmpty()) {
             val geomMeanMs = geomMean(perfTestRawDataMs.toList()).toLong()
             run {
-                val it = metrics.iterator();
+                val it = metrics.iterator()
                 while (it.hasNext()) {
                     val next = it.next()
                     if (next.name == GEOM_MEAN) it.remove()
