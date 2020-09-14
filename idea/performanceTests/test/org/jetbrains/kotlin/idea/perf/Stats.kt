@@ -360,7 +360,7 @@ class Stats(
     }
 
     fun flush() {
-        logMessage { "flush: perfTestRawDataMs: $perfTestRawDataMs" }
+        logMessage { "flush: perfTestRawDataMs: $name $perfTestRawDataMs" }
         if (perfTestRawDataMs.isNotEmpty()) {
             val geomMeanMs = geomMean(perfTestRawDataMs.toList()).toLong()
             run {
