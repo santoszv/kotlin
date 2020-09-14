@@ -36,14 +36,16 @@ class Stats(
     init {
         PerformanceCounter.setTimeCounterEnabled(true)
 
+        logMessage { "env: ${System.getenv()}" }
+        metrics.add(Metric("name", name))
         System.getenv("TEAMCITY_BUILD_PROPERTIES_FILE")?.let { teamcityConfig ->
             val buildProperties = Properties()
             buildProperties.load(FileInputStream(teamcityConfig))
             logMessage { "buildProperties: $buildProperties" }
 
             metrics.add(Metric("build.timestamp", SimpleDateFormat("yyyy-MM-dd HH:mm:ssZ").format(Date())))
-            for (name in arrayOf("agent.name", "build.id", "build.branch")) {
-                metrics.add(Metric(name, buildProperties.getProperty("teamcity.$name")))
+            for ((name, key) in mapOf("agent.name" to "agent.name", "build.id" to "teamcity.build.id")) {
+                metrics.add(Metric(name, buildProperties.getProperty(key)))
             }
         }
     }
@@ -268,7 +270,10 @@ class Stats(
                 testData.reset()
                 triggerGC(attempt)
 
-                val setUpMillis = measureTimeMillis { phaseData.setUp(testData) }
+                val setUpMillis = measureTimeMillis {
+                    // TODO[VD] !!!
+                    // phaseData.setUp(testData)
+                }
                 val attemptName = "${phaseData.testName} #$attempt"
                 logMessage { "$attemptName setup took $setUpMillis ms" }
 
@@ -277,7 +282,8 @@ class Stats(
                 try {
                     phaseProfiler.start()
                     valueMap[TEST_KEY] = measureNanoTime {
-                        phaseData.test(testData)
+                        // TODO[VD] !!!
+                        // phaseData.test(testData)
                     }
 
                     PerformanceCounter.report { name, counter, nanos ->
@@ -293,7 +299,8 @@ class Stats(
                     phaseProfiler.stop()
                     try {
                         val tearDownMillis = measureTimeMillis {
-                            phaseData.tearDown(testData)
+                            // TODO[VD] !!!
+                            // phaseData.tearDown(testData)
                         }
                         logMessage { "$attemptName tearDown took $tearDownMillis ms" }
                     } catch (t: Throwable) {
@@ -348,11 +355,12 @@ class Stats(
     }
 
     fun flush() {
+        logMessage { "flush: perfTestRawDataMs: $perfTestRawDataMs" }
         if (perfTestRawDataMs.isNotEmpty()) {
             val geomMeanMs = geomMean(perfTestRawDataMs.toList()).toLong()
             run {
                 val it = metrics.iterator();
-                while(it.hasNext()) {
+                while (it.hasNext()) {
                     val next = it.next()
                     if (next.name == GEOM_MEAN) it.remove()
                 }

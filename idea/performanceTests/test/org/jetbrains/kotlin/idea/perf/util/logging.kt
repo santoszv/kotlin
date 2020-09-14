@@ -59,6 +59,7 @@ object TeamCity {
     }
 
     inline fun statValue(name: String, value: Any) {
+        logMessage { "buildStatisticValue key='$name' value='$value'" }
         message { "buildStatisticValue key='$name' value='$value'" }
     }
 

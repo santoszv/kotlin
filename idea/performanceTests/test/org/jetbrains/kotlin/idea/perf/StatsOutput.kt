@@ -46,7 +46,7 @@ internal fun Metric.writeTeamCityStats(name: String, rawMeasurementName: String 
 internal fun List<Metric>.writeJson(name: String) {
     val statsFile = statsFile(name, "json")
     statsFile.bufferedWriter().use { output ->
-        output.append(toJson())
+        output.append(toJson(name))
         output.flush()
     }
 }
@@ -54,17 +54,20 @@ internal fun List<Metric>.writeJson(name: String) {
 private fun statsFile(name: String, extension: String) =
     File(pathToResource("stats${statFilePrefix(name)}.$extension")).absoluteFile
 
-private fun List<Metric>.toJson() = joinToString(separator = ",\n", prefix = "{", postfix = "}") { it.toJson() }
+private fun List<Metric>.toJson(prefix: String) = joinToString(separator = ",\n", prefix = "{", postfix = "}") { it.toJson(prefix) }
 
-private fun Metric.toJson(): String =
+private fun Metric.toJson(prefix: String): String =
     buildString {
-        val nm = name.replace("\"", "\\\"")
+        val s = "$prefix $name".trim()
+        val nam = if (name.isEmpty()) "_value" else name
+        val nm = nam.replace("\"", "\\\"")
         if (children.isNotEmpty()) {
             val cnm = childrenName.replace("\"", "\\\"")
-            val list = listOf(Metric(if (name == childrenName) "" else name, value)) + children
-            append("\"").append(cnm).append("\":").append(list.toJson())
+            val list = listOf(Metric(if (nam == childrenName) "_value" else nam, value)) + children
+            append("\"").append(cnm).append("\":").append(list.toJson(s))
         } else {
             append("\"").append(nm).append("\":").append("\"${value ?: error ?: ""}\"")
+            append(",\"").append(nm).append("_legacy\":").append("\"${s.replace("\"", "\\\"")}\"")
         }
     }
 
