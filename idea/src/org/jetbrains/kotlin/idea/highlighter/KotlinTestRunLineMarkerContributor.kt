@@ -51,7 +51,12 @@ class KotlinTestRunLineMarkerContributor : RunLineMarkerContributor() {
         fun SimplePlatform.providesRunnableTests(): Boolean {
             if (this is NativePlatformWithTarget) {
                 return when {
-                    HostManager.hostIsMac -> target in listOf(KonanTarget.IOS_X64, KonanTarget.MACOS_X64)
+                    HostManager.hostIsMac -> target in listOf(
+                        KonanTarget.IOS_X64,
+                        KonanTarget.MACOS_X64,
+                        KonanTarget.WATCHOS_X64,
+                        KonanTarget.TVOS_X64
+                    )
                     HostManager.hostIsLinux -> target == KonanTarget.LINUX_X64
                     HostManager.hostIsMingw -> target in listOf(KonanTarget.MINGW_X86, KonanTarget.MINGW_X64)
                     else -> false
