@@ -29,7 +29,7 @@ internal fun List<Metric>.writeCSV(name: String, header: Array<String>) {
 
 internal fun Metric.writeTeamCityStats(name: String, rawMeasurementName: String = "rawMeasurements", rawMetrics: Boolean = false) {
     fun Metric.append(prefix: String) {
-        val s = "$prefix ${this.name}".trim()
+        val s = "${if (this.name == Stats.GEOM_MEAN) prefix else "$prefix:"} ${this.name}".trim()
         value?.let {
             TeamCity.statValue(s, it)
         }
@@ -39,7 +39,7 @@ internal fun Metric.writeTeamCityStats(name: String, rawMeasurementName: String 
         }
     }
 
-    append("$name:")
+    append(name)
 }
 
 
